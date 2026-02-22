@@ -10,6 +10,7 @@ services:
   # Transmission + OpenVPN
   # ============================================================
   transmission-openvpn:
+    container_name: transmission-openvpn
     image: haugene/transmission-openvpn:latest
     restart: on-failure
     cap_add:

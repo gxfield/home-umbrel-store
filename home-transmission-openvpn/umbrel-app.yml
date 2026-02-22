@@ -33,7 +33,7 @@ description: >-
 
   When adding this as a download client in Radarr/Sonarr, use:
 
-  - **Host:** `home-transmission-openvpn_transmission-openvpn_1`
+  - **Host:** `transmission-openvpn`
 
   - **Port:** `9091`
 

@@ -8,7 +8,7 @@
 # =============================================================================
 
 # Transmission RPC connection details
-export APP_TRANSMISSION_OPENVPN_RPC_HOST="home-transmission-openvpn_transmission-openvpn_1"
+export APP_TRANSMISSION_OPENVPN_RPC_HOST="transmission-openvpn"
 export APP_TRANSMISSION_OPENVPN_RPC_PORT="9091"
 export APP_TRANSMISSION_OPENVPN_RPC_URL="/transmission/"
 
