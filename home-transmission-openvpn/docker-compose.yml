@@ -2,21 +2,6 @@ version: "3.7"
 
 services:
   # ============================================================
-  # Umbrel App Proxy — handles Umbrel password authentication
-  # ============================================================
-  app_proxy:
-    environment:
-      APP_HOST: home-transmission-openvpn_transmission_1
-      APP_PORT: 9091
-      # Whitelist the Radarr/Sonarr media-app-configurator (mac) services
-      # so they can reach Transmission's RPC API without Umbrel auth.
-      PROXY_AUTH_WHITELIST: "/transmission/rpc"
-    image: getumbrel/umbrel-app-proxy:v1.0.1@sha256:d181a102a00e6e7c4ee8e832936a26370d2d8cdab4e71a16bd413a06e93a9df4
-    restart: on-failure
-    ports:
-      - "9091:3000"
-
-  # ============================================================
   # Transmission + OpenVPN
   # ============================================================
   transmission:
