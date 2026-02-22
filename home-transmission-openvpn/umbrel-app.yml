@@ -5,7 +5,7 @@ tagline: Transmission torrent client running behind an OpenVPN tunnel
 icon: https://raw.githubusercontent.com/haugene/docker-transmission-openvpn/master/images/logo.png
 category: media
 version: "5.3.1"
-port: 9091
+port: 9092
 description: >-
   Transmission BitTorrent client with all traffic routed through an OpenVPN
   tunnel for private, secure downloading. Based on haugene/transmission-openvpn.
