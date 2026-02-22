@@ -60,10 +60,21 @@ All configuration is done over SSH. The app ships with empty VPN credentials —
    ```
    Common values: `PIA`, `NORDVPN`, `MULLVAD`, `SURFSHARK`, `PROTONVPN`, `EXPRESSVPN`, `IPVANISH`, `WINDSCRIBE`
 
-3. Set `OPENVPN_CONFIG` to a server or region (provider-specific):
+3. Set the server or region. Some providers use their own env vars instead of `OPENVPN_CONFIG`:
+
+   **NordVPN** — uses `NORDVPN_COUNTRY` (country code or full name) and requires UDP:
+   ```yaml
+   NORDVPN_COUNTRY: "CA"
+   NORDVPN_PROTOCOL: "udp"
+   ```
+
+   > **Important:** NordVPN defaults to TCP, which causes connection timeouts on Umbrel's Docker network. Always set `NORDVPN_PROTOCOL: "udp"` when using NordVPN as a named provider.
+
+   **Other providers** — use `OPENVPN_CONFIG`:
    ```yaml
    OPENVPN_CONFIG: "france"
    ```
+
    See the [full provider list and config options](https://haugene.github.io/docker-transmission-openvpn/supported-providers/) for valid values.
 
 4. Set your VPN credentials:
@@ -85,7 +96,7 @@ After restarting, run these commands to confirm the VPN is connected:
 docker logs home-transmission-openvpn_transmission-openvpn_1 2>&1 | grep -E "(Initialization Sequence Completed|AUTH_FAILED)"
 
 # Verify the VPN IP (should NOT be your home IP)
-docker exec home-transmission-openvpn_transmission-openvpn_1 curl -s https://api.ipify.org
+docker exec home-transmission-openvpn_transmission-openvpn_1 wget -qO- https://api.ipify.org
 
 # Check the container is running and not restarting
 docker ps | grep transmission-openvpn
@@ -138,6 +149,11 @@ Both apps mount the same host directory at `/downloads`, so Radarr and Sonarr ca
 **AUTH_FAILED in logs**
 - Your VPN credentials are incorrect
 - Some providers require API credentials, not your account login — check your provider's documentation
+
+**NordVPN disconnects every 3 minutes**
+- The NordVPN provider defaults to TCP, which has a routing conflict on Umbrel's Docker network
+- Add `NORDVPN_PROTOCOL: "udp"` to your docker-compose.yml environment variables
+- Restart the app after making the change
 
 **OpenVPN config parse error**
 - Remove `block-outside-dns` from your `.ovpn` file (Windows-only directive that fails on Linux)

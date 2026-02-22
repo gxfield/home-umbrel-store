@@ -24,6 +24,7 @@ services:
         max-size: 10m
     environment:
       # VPN provider — set to CUSTOM to use your own .ovpn file
+      # NordVPN users: set NORDVPN_PROTOCOL=udp (TCP times out on Umbrel Docker network)
       OPENVPN_PROVIDER: "CUSTOM"
       OPENVPN_CONFIG: ""
       OPENVPN_USERNAME: ""
