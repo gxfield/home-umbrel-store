@@ -3,8 +3,8 @@ version: "3.7"
 services:
   app_proxy:
     environment:
-      APP_HOST: transmission_server_2
-      APP_PORT: 9092
+      APP_HOST: transmission-openvpn
+      APP_PORT: 9091
     container_name: transmission_app_proxy_2
   # ============================================================
   # Transmission + OpenVPN
