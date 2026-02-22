@@ -55,7 +55,7 @@ dependencies: []
 repo: https://github.com/haugene/docker-transmission-openvpn
 support: https://github.com/haugene/docker-transmission-openvpn/discussions
 gallery: []
-path: ""
+path: /transmission/web
 defaultUsername: ""
 defaultPassword: ""
 releaseNotes: >-
