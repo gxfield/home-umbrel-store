@@ -5,7 +5,7 @@ tagline: Transmission torrent client running behind an OpenVPN tunnel
 icon: https://raw.githubusercontent.com/haugene/docker-transmission-openvpn/master/images/logo.png
 category: media
 version: "5.3.1"
-port: 9092
+port: 9091
 description: >-
   Transmission BitTorrent client with all traffic routed through an OpenVPN
   tunnel for private, secure downloading. Based on haugene/transmission-openvpn.
@@ -42,13 +42,9 @@ description: >-
 
   ## First-Time Setup
 
-  After installing, you **must** SSH into your Umbrel and edit the environment
-  variables in this app's docker-compose.yml to set your VPN provider,
-  username, and password. Alternatively, you can mount a custom .ovpn file.
-
-
-  See https://haugene.github.io/docker-transmission-openvpn/ for full
-  documentation on supported providers and configuration options.
+  SSH into your Umbrel, place your `.ovpn` file in the app's `data/openvpn/`
+  directory, and set `OPENVPN_CONFIG` (and credentials if required) in
+  `docker-compose.yml`. See the README for detailed instructions.
 developer: haugene
 website: https://haugene.github.io/docker-transmission-openvpn/
 dependencies: []

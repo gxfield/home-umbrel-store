@@ -1,58 +1,103 @@
 # Transmission OpenVPN for Umbrel
 
-Transmission BitTorrent client with all traffic routed through an OpenVPN tunnel. Pre-configured for seamless integration with Radarr and Sonarr on your Umbrel.
+Transmission BitTorrent client routed through an OpenVPN tunnel, pre-configured for Radarr/Sonarr integration.
 
 ## Setup
 
-### 1. Configure Your VPN Provider
+All configuration is done over SSH. The app ships with empty VPN credentials — you must set them before the container will connect.
 
-After installing, SSH into your Umbrel and edit the docker-compose.yml:
+### Using a Custom .ovpn File (Recommended)
 
-```bash
-# On umbrelOS:
-nano ~/umbrel/app-data/home-transmission-openvpn/docker-compose.yml
-```
+1. SSH into your Umbrel:
+   ```bash
+   ssh umbrel@umbrel.local
+   ```
 
-Change these environment variables:
+2. Create the OpenVPN config directory:
+   ```bash
+   mkdir -p ~/umbrel/app-data/home-transmission-openvpn/data/openvpn
+   ```
 
-```yaml
-OPENVPN_PROVIDER: "PIA"              # Your VPN provider
-OPENVPN_CONFIG: "france"             # Server/region
-OPENVPN_USERNAME: "your_username"    # VPN username
-OPENVPN_PASSWORD: "your_password"    # VPN password
-```
-
-Then restart the app from the Umbrel UI.
-
-### 2. Using a Custom .ovpn File
-
-If your provider isn't supported or you prefer a custom config:
-
-1. Place your `.ovpn` file in the app's data directory:
+3. Copy your `.ovpn` file to that directory:
    ```bash
    cp your-vpn.ovpn ~/umbrel/app-data/home-transmission-openvpn/data/openvpn/
    ```
 
-2. Uncomment the custom OpenVPN volume mount in `docker-compose.yml`:
-   ```yaml
-   - ${APP_DATA_DIR}/data/openvpn:/etc/openvpn/custom
+4. Open the docker-compose.yml for editing:
+   ```bash
+   nano ~/umbrel/app-data/home-transmission-openvpn/docker-compose.yml
    ```
 
-3. Set the provider to CUSTOM:
+5. Set `OPENVPN_CONFIG` to the filename without the `.ovpn` extension. For example, if your file is `my-server.ovpn`, set:
    ```yaml
-   OPENVPN_PROVIDER: "CUSTOM"
-   OPENVPN_CONFIG: "your-vpn"  # filename without .ovpn
+   OPENVPN_CONFIG: "my-server"
    ```
 
-## Connecting Radarr & Sonarr
+6. Set your VPN credentials:
+   ```yaml
+   OPENVPN_USERNAME: "your-vpn-username"
+   OPENVPN_PASSWORD: "your-vpn-password"
+   ```
 
-### Automatic (if using Umbrel's built-in Radarr/Sonarr)
+7. Confirm `OPENVPN_PROVIDER` is set to `"CUSTOM"` (the default).
 
-Umbrel's Radarr and Sonarr are pre-configured to look for `transmission_server_1` as the download client hostname. Since this app uses a different container name, you'll need to add it manually.
+8. Restart the app from the Umbrel dashboard: Settings > Restart.
 
-### Manual Setup
+> **Note:** If your `.ovpn` file contains a `block-outside-dns` line, remove it. That directive is Windows-only and will cause the container to fail on Linux.
 
-In **Radarr** (or Sonarr): Settings → Download Clients → Add → Transmission
+---
+
+### Using a Named Provider (PIA, NordVPN, Mullvad, etc.)
+
+1. SSH into your Umbrel and open docker-compose.yml:
+   ```bash
+   nano ~/umbrel/app-data/home-transmission-openvpn/docker-compose.yml
+   ```
+
+2. Change `OPENVPN_PROVIDER` from `"CUSTOM"` to your provider name:
+   ```yaml
+   OPENVPN_PROVIDER: "PIA"
+   ```
+   Common values: `PIA`, `NORDVPN`, `MULLVAD`, `SURFSHARK`, `PROTONVPN`, `EXPRESSVPN`, `IPVANISH`, `WINDSCRIBE`
+
+3. Set `OPENVPN_CONFIG` to a server or region (provider-specific):
+   ```yaml
+   OPENVPN_CONFIG: "france"
+   ```
+   See the [full provider list and config options](https://haugene.github.io/docker-transmission-openvpn/supported-providers/) for valid values.
+
+4. Set your VPN credentials:
+   ```yaml
+   OPENVPN_USERNAME: "your-vpn-username"
+   OPENVPN_PASSWORD: "your-vpn-password"
+   ```
+
+5. Restart the app from the Umbrel dashboard: Settings > Restart.
+
+---
+
+## Verify It Works
+
+After restarting, run these commands to confirm the VPN is connected:
+
+```bash
+# Check container logs for VPN connection status
+docker logs home-transmission-openvpn_transmission-openvpn_1 2>&1 | grep -E "(Initialization Sequence Completed|AUTH_FAILED)"
+
+# Verify the VPN IP (should NOT be your home IP)
+docker exec home-transmission-openvpn_transmission-openvpn_1 curl -s https://api.ipify.org
+
+# Check the container is running and not restarting
+docker ps | grep transmission-openvpn
+```
+
+A successful connection shows `Initialization Sequence Completed` in the logs and an IP address different from your home IP.
+
+---
+
+## Radarr and Sonarr Integration
+
+In Radarr or Sonarr: **Settings > Download Clients > Add > Transmission**
 
 | Field | Value |
 |---|---|
@@ -67,38 +112,47 @@ Click **Test** then **Save**.
 
 ### Why It Works
 
-The key to Radarr/Sonarr integration is **shared download paths**:
+The key to Radarr/Sonarr integration is a shared download path:
 
 ```
-Umbrel host path:        ${UMBREL_ROOT}/data/storage/downloads/
-Transmission sees it as: /downloads/
+Umbrel host path:         ${UMBREL_ROOT}/data/storage/downloads/
+Transmission sees it as:  /downloads/
 Radarr/Sonarr sees it as: /downloads/
 ```
 
-Since both apps mount the same host directory at `/downloads`, Radarr and Sonarr can directly access completed downloads without any remote path mapping. Transmission saves completed files to `/downloads/complete/`, and Radarr/Sonarr can read them from the same location.
+Both apps mount the same host directory at `/downloads`, so Radarr and Sonarr can directly access completed downloads without any remote path mapping. Transmission saves to `/downloads/complete/` and Radarr/Sonarr read from the same location.
 
-## Supported VPN Providers
-
-See the full list at: https://haugene.github.io/docker-transmission-openvpn/supported-providers/
-
-Common providers include: PIA, NordVPN, Mullvad, Surfshark, ProtonVPN, ExpressVPN, IPVanish, Windscribe, AirVPN, and many more. You can also use any provider with the CUSTOM option and your own .ovpn file.
+---
 
 ## Troubleshooting
 
-**App won't start / restarts constantly:**
-- Check logs: `docker logs transmission-openvpn`
-- Verify your VPN credentials are correct
-- Make sure `/dev/net/tun` exists on your Umbrel device
+**Container keeps restarting (crash loop)**
+- Check logs for `AUTH_FAILED`: your VPN credentials are wrong or still empty
+- Check logs for `No OpenVPN config found`: `OPENVPN_CONFIG` doesn't match any `.ovpn` filename in the openvpn directory, or no `.ovpn` file is present
+- Verify `/dev/net/tun` exists on the host: `ls /dev/net/tun`
 
-**Radarr/Sonarr can't connect:**
-- Verify the container is healthy: `docker ps` should show `(healthy)`
-- Test RPC: `curl http://transmission-openvpn:9091/transmission/rpc`
-- Check that `LOCAL_NETWORK` includes your Docker subnet
+**App shows in Umbrel but web UI won't load**
+- There may be a port mismatch in configuration — both `umbrel-app.yml` and `docker-compose.yml` should use port `9091`
+- The container may not be running yet — check `docker ps` and look at logs
 
-**Downloads not appearing in Radarr/Sonarr:**
-- Confirm both apps mount the same storage path
-- Check file permissions (PUID/PGID should be 1000)
+**AUTH_FAILED in logs**
+- Your VPN credentials are incorrect
+- Some providers require API credentials, not your account login — check your provider's documentation
+
+**OpenVPN config parse error**
+- Remove `block-outside-dns` from your `.ovpn` file (Windows-only directive that fails on Linux)
+- Check for Windows line endings: `dos2unix your-vpn.ovpn`
+
+**Radarr/Sonarr can't connect to download client**
+- Verify the container is running and healthy: `docker ps` should show `(healthy)`
+- Verify `LOCAL_NETWORK` in docker-compose.yml includes `10.21.0.0/16`
+- Test RPC from another container:
+  ```bash
+  docker exec <radarr-container> curl -s http://home-transmission-openvpn_transmission-openvpn_1:9091/transmission/rpc
+  ```
+
+---
 
 ## Documentation
 
-Full documentation: https://haugene.github.io/docker-transmission-openvpn/
+Full haugene/transmission-openvpn documentation: https://haugene.github.io/docker-transmission-openvpn/

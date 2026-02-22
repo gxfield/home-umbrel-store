@@ -5,10 +5,9 @@ services:
     environment:
       APP_HOST: home-transmission-openvpn_transmission-openvpn_1
       APP_PORT: 9091
-    container_name: transmission_app_proxy_2
-  # ============================================================
+    container_name: home-transmission-openvpn_app_proxy_1
+
   # Transmission + OpenVPN
-  # ============================================================
   transmission-openvpn:
     image: haugene/transmission-openvpn:latest
     restart: on-failure
@@ -24,93 +23,47 @@ services:
       options:
         max-size: 10m
     environment:
-      # ==========================================================
-      # VPN CONFIGURATION — YOU MUST CHANGE THESE
-      # ==========================================================
-      # Set your VPN provider. See full list at:
-      # https://haugene.github.io/docker-transmission-openvpn/supported-providers/
-      #
-      # Common providers: PIA, NORDVPN, MULLVAD, SURFSHARK, PROTONVPN,
-      # EXPRESSVPN, IPVANISH, WINDSCRIBE, CUSTOM
-      OPENVPN_PROVIDER: "PIA"
-      # Server/config to connect to (provider-specific)
-      OPENVPN_CONFIG: "france"
-      # Your VPN credentials
-      OPENVPN_USERNAME: "your_vpn_username"
-      OPENVPN_PASSWORD: "your_vpn_password"
-      # For providers using OpenVPN config files (CUSTOM provider):
-      # Mount your .ovpn file and set OPENVPN_CONFIG to the filename
-      # without .ovpn extension. See docs for details.
+      # VPN provider — set to CUSTOM to use your own .ovpn file
+      OPENVPN_PROVIDER: "CUSTOM"
+      OPENVPN_CONFIG: ""
+      OPENVPN_USERNAME: ""
+      OPENVPN_PASSWORD: ""
 
-      # ==========================================================
-      # NETWORK — allow Umbrel's Docker network to reach RPC
-      # ==========================================================
-      # This MUST include Umbrel's Docker subnet so Radarr, Sonarr,
-      # and the Umbrel UI can communicate with Transmission's RPC.
+      # Umbrel Docker subnet — required so Radarr/Sonarr can reach RPC
       LOCAL_NETWORK: "10.21.0.0/16"
 
-      # ==========================================================
-      # TRANSMISSION SETTINGS
-      # ==========================================================
-      # Transmission's download directory INSIDE the container.
-      # This maps to Umbrel's shared /downloads directory via the
-      # volume mount below, which is the same path Radarr/Sonarr use.
+      # Transmission settings
       TRANSMISSION_DOWNLOAD_DIR: "/downloads/complete"
       TRANSMISSION_INCOMPLETE_DIR: "/downloads/incomplete"
       TRANSMISSION_INCOMPLETE_DIR_ENABLED: "true"
       TRANSMISSION_WATCH_DIR: "/downloads/watch"
       TRANSMISSION_WATCH_DIR_ENABLED: "true"
 
-      # RPC settings — allow connections from the Docker network
+      # RPC — allow connections from the Docker network
       TRANSMISSION_RPC_AUTHENTICATION_REQUIRED: "false"
       TRANSMISSION_RPC_HOST_WHITELIST_ENABLED: "false"
       TRANSMISSION_RPC_WHITELIST_ENABLED: "false"
 
-      # Performance defaults (adjust to your needs)
+      # Performance defaults
       TRANSMISSION_SPEED_LIMIT_UP: "100"
       TRANSMISSION_SPEED_LIMIT_UP_ENABLED: "false"
       TRANSMISSION_RATIO_LIMIT: "2"
       TRANSMISSION_RATIO_LIMIT_ENABLED: "false"
 
-      # Peer port (also exposed below)
       TRANSMISSION_PEER_PORT: "51820"
-
-      # Create TUN device if not available
       CREATE_TUN_DEVICE: "true"
-
-      # Health check — verify VPN is working
       HEALTH_CHECK_HOST: "google.com"
-
-      # File permissions
       PUID: "1000"
       PGID: "1000"
-
-      # Logging
       LOG_TO_STDOUT: "true"
-
-      # Timezone (change to your timezone)
       TZ: "UTC"
 
     volumes:
-      # Persistent Transmission config (settings, resume files, etc.)
       - ${APP_DATA_DIR}/data/config:/config
-
-      # ==========================================================
-      # CRITICAL: Shared downloads directory
-      # ==========================================================
-      # This maps Transmission's /downloads to the SAME host path
-      # that Radarr and Sonarr use. This means:
-      #
-      #   - Transmission saves to:  /downloads/complete/
-      #   - Radarr/Sonarr sees:     /downloads/complete/
-      #
-      # No remote path mapping needed!
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
-
-      # For CUSTOM VPN provider — mount your .ovpn files here:
-      # - ${APP_DATA_DIR}/data/openvpn:/etc/openvpn/custom
+      # Place your .ovpn file(s) in APP_DATA_DIR/data/openvpn/ and set OPENVPN_CONFIG
+      - ${APP_DATA_DIR}/data/openvpn:/etc/openvpn/custom
 
     ports:
-      # Peer port for incoming torrent connections
       - "51820:51820"
       - "51820:51820/udp"
