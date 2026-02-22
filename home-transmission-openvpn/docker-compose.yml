@@ -4,7 +4,7 @@ services:
   # ============================================================
   # Transmission + OpenVPN
   # ============================================================
-  transmission:
+  transmission-openvpn:
     image: haugene/transmission-openvpn:latest
     restart: on-failure
     cap_add:
