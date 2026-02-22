@@ -48,7 +48,7 @@ services:
       # ==========================================================
       # This MUST include Umbrel's Docker subnet so Radarr, Sonarr,
       # and the Umbrel UI can communicate with Transmission's RPC.
-      LOCAL_NETWORK: "10.21.0.0/16,172.16.0.0/12,192.168.0.0/16"
+      LOCAL_NETWORK: "10.21.0.0/16"
 
       # ==========================================================
       # TRANSMISSION SETTINGS
