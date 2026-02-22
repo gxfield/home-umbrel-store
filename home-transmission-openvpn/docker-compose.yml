@@ -3,14 +3,13 @@ version: "3.7"
 services:
   app_proxy:
     environment:
-      APP_HOST: transmission-openvpn
+      APP_HOST: home-transmission-openvpn_transmission-openvpn_1
       APP_PORT: 9091
     container_name: transmission_app_proxy_2
   # ============================================================
   # Transmission + OpenVPN
   # ============================================================
   transmission-openvpn:
-    container_name: transmission-openvpn
     image: haugene/transmission-openvpn:latest
     restart: on-failure
     cap_add:
