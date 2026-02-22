@@ -57,7 +57,7 @@ In **Radarr** (or Sonarr): Settings → Download Clients → Add → Transmissio
 | Field | Value |
 |---|---|
 | **Name** | Transmission VPN |
-| **Host** | `home-transmission-openvpn_transmission_1` |
+| **Host** | `home-transmission-openvpn_transmission-openvpn_1` |
 | **Port** | `9091` |
 | **URL Base** | `/transmission/` |
 | **Username** | *(leave empty)* |
@@ -86,13 +86,13 @@ Common providers include: PIA, NordVPN, Mullvad, Surfshark, ProtonVPN, ExpressVP
 ## Troubleshooting
 
 **App won't start / restarts constantly:**
-- Check logs: `docker logs home-transmission-openvpn_transmission_1`
+- Check logs: `docker logs home-transmission-openvpn_transmission-openvpn_1`
 - Verify your VPN credentials are correct
 - Make sure `/dev/net/tun` exists on your Umbrel device
 
 **Radarr/Sonarr can't connect:**
 - Verify the container is healthy: `docker ps` should show `(healthy)`
-- Test RPC: `curl http://home-transmission-openvpn_transmission_1:9091/transmission/rpc`
+- Test RPC: `curl http://home-transmission-openvpn_transmission-openvpn_1:9091/transmission/rpc`
 - Check that `LOCAL_NETWORK` includes your Docker subnet
 
 **Downloads not appearing in Radarr/Sonarr:**
