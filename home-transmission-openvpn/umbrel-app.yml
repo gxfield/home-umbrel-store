@@ -1,0 +1,66 @@
+manifestVersion: 1
+id: home-transmission-openvpn
+name: Transmission OpenVPN
+tagline: Transmission torrent client running behind an OpenVPN tunnel
+icon: https://raw.githubusercontent.com/haugene/docker-transmission-openvpn/master/images/logo.png
+category: media
+version: "5.3.1"
+port: 9091
+description: >-
+  Transmission BitTorrent client with all traffic routed through an OpenVPN
+  tunnel for private, secure downloading. Based on haugene/transmission-openvpn.
+
+
+  ## Features
+
+  - All torrent traffic is routed through your VPN provider
+
+  - Supports 30+ VPN providers (NordVPN, PIA, Mullvad, ProtonVPN, Surfshark, etc.)
+
+  - Built-in kill switch — if the VPN drops, traffic stops
+
+  - Health checks to ensure VPN connectivity
+
+  - Web UI for managing torrents
+
+
+  ## Radarr & Sonarr Integration
+
+  This app is pre-configured to work with Radarr and Sonarr on your Umbrel.
+  Downloads are saved to the shared `/downloads` directory so Radarr and Sonarr
+  can automatically import completed files.
+
+
+  When adding this as a download client in Radarr/Sonarr, use:
+
+  - **Host:** `home-transmission-openvpn_transmission_1`
+
+  - **Port:** `9091`
+
+  - **No username/password required** (unless you set TRANSMISSION_RPC_USERNAME/PASSWORD)
+
+
+  ## First-Time Setup
+
+  After installing, you **must** SSH into your Umbrel and edit the environment
+  variables in this app's docker-compose.yml to set your VPN provider,
+  username, and password. Alternatively, you can mount a custom .ovpn file.
+
+
+  See https://haugene.github.io/docker-transmission-openvpn/ for full
+  documentation on supported providers and configuration options.
+developer: haugene
+website: https://haugene.github.io/docker-transmission-openvpn/
+dependencies: []
+repo: https://github.com/haugene/docker-transmission-openvpn
+support: https://github.com/haugene/docker-transmission-openvpn/discussions
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: >-
+  Transmission OpenVPN packaged for Umbrel with Radarr/Sonarr integration.
+  Downloads are stored in the shared Umbrel downloads directory for seamless
+  media stack compatibility.
+submitter: My Apps
+submission: https://github.com/haugene/docker-transmission-openvpn
